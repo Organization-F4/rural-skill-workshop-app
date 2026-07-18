@@ -1,1 +1,1 @@
-# Rural-Skill-Workshop-Locator-Registration-Platform
+# rural-skill-workshop-app
