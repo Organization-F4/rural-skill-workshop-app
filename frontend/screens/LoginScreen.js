@@ -1,13 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Alert, ActivityIndicator
+} from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Email aur password dono bharo.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await login(email.trim(), password);
+      // Navigation automatically handled by AppNavigator (PRJ-A65E-0003)
+    } catch (err) {
+      Alert.alert('Login Failed', err.response?.data?.message || 'Kuch galat hua. Dobara try karo.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Rural Skill Workshop</Text>
+      <Text style={styles.title}>🌾 Rural Skill Workshop</Text>
       <Text style={styles.subtitle}>Login to continue</Text>
 
       <TextInput
@@ -26,11 +48,14 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+        {loading
+          ? <ActivityIndicator color="#fff" />
+          : <Text style={styles.buttonText}>Login</Text>
+        }
       </TouchableOpacity>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.link}>Account nahi hai? Register karo</Text>
       </TouchableOpacity>
     </View>
@@ -45,7 +70,10 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#ddd', padding: 12,
     borderRadius: 8, marginBottom: 15, fontSize: 16
   },
-  button: { backgroundColor: '#2E7D32', padding: 15, borderRadius: 8, alignItems: 'center' },
+  button: {
+    backgroundColor: '#2E7D32', padding: 15,
+    borderRadius: 8, alignItems: 'center', minHeight: 50, justifyContent: 'center'
+  },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   link: { textAlign: 'center', marginTop: 15, color: '#2E7D32' }
 });
