@@ -53,4 +53,68 @@ router.get('/my', protect, authorize('organizer'), async (req, res) => {
   }
 });
 
+// Register for a workshop (participant)
+// PRJ-A65E-0032: POST /api/workshops/:id/register
+router.post('/:id/register', protect, async (req, res) => {
+  try {
+    const Registration = require('../models/Registration');
+
+    const workshop = await Workshop.findById(req.params.id);
+    if (!workshop) {
+      return res.status(404).json({ success: false, message: 'Workshop not found.' });
+    }
+
+    // Already registered check
+    const existing = await Registration.findOne({
+      user: req.user._id,
+      workshop: req.params.id,
+    });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Already registered for this workshop.' });
+    }
+
+    const registration = await Registration.create({
+      user: req.user._id,
+      workshop: req.params.id,
+    });
+
+    res.status(201).json({ success: true, message: 'Registered successfully!', data: registration });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get registrations for a workshop (organizer view)
+// PRJ-A65E-0057: Fetch registrations from backend
+router.get('/:id/registrations', protect, authorize('organizer'), async (req, res) => {
+  try {
+    const Registration = require('../models/Registration');
+    const registrations = await Registration.find({ workshop: req.params.id })
+      .populate('user', 'name email location');
+    res.json({ success: true, count: registrations.length, data: registrations });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Mark attendance (organizer)
+// PRJ-A65E-0010: Save attendance to backend
+router.patch('/registrations/:regId/attendance', protect, authorize('organizer'), async (req, res) => {
+  try {
+    const Registration = require('../models/Registration');
+    const { status } = req.body; // 'attended' ya 'registered'
+    const registration = await Registration.findByIdAndUpdate(
+      req.params.regId,
+      { status: status || 'attended' },
+      { new: true }
+    );
+    if (!registration) {
+      return res.status(404).json({ success: false, message: 'Registration not found.' });
+    }
+    res.json({ success: true, message: 'Attendance updated!', data: registration });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;
