@@ -2,19 +2,19 @@
 // PRJ-A65E-0038: Fetch organizer workshops
 // PRJ-A65E-0039: Display summary stats
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import AppHeader from '../components/AppHeader';
 import { useAuth } from '../context/AuthContext';
-
-const API_URL = 'http://10.0.2.2:5000/api';
+import { API_URL } from '../config';
 
 export default function OrganizerDashboard() {
   const { user } = useAuth();
+  const navigation = useNavigation();
   const [workshops, setWorkshops] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // PRJ-A65E-0038: Fetch organizer's own workshops
   useEffect(() => {
     const fetchWorkshops = async () => {
       try {
@@ -29,19 +29,23 @@ export default function OrganizerDashboard() {
     fetchWorkshops();
   }, []);
 
-  // PRJ-A65E-0039: Summary stats
   const totalWorkshops = workshops.length;
   const upcomingWorkshops = workshops.filter(w => new Date(w.date) > new Date()).length;
 
   return (
     <View style={styles.container}>
-      {/* PRJ-A65E-0048: Logout button via AppHeader */}
       <AppHeader title="Organizer Dashboard" />
+
+      <TouchableOpacity
+        style={styles.createBtn}
+        onPress={() => navigation.navigate('CreateWorkshop')}
+      >
+        <Text style={styles.createBtnText}>➕ Create New Workshop</Text>
+      </TouchableOpacity>
 
       <View style={styles.content}>
         <Text style={styles.welcome}>Welcome, {user?.name}! 👋</Text>
 
-        {/* PRJ-A65E-0039: Summary Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statNum}>{totalWorkshops}</Text>
@@ -53,7 +57,7 @@ export default function OrganizerDashboard() {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Aapke Workshops</Text>
+        <Text style={styles.sectionTitle}>Aapke Workshops (tap for registrations)</Text>
 
         {loading ? (
           <ActivityIndicator size="large" color="#2E7D32" style={{ marginTop: 30 }} />
@@ -64,13 +68,16 @@ export default function OrganizerDashboard() {
             data={workshops}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <View style={styles.card}>
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => navigation.navigate('RegisteredUsers', { workshop: item })}
+              >
                 <Text style={styles.cardTitle}>{item.title}</Text>
                 <Text style={styles.cardDetail}>🛠 {item.skillType}</Text>
                 <Text style={styles.cardDetail}>📍 {item.location}</Text>
                 <Text style={styles.cardDetail}>📅 {new Date(item.date).toLocaleDateString('hi-IN')}</Text>
-                <Text style={styles.cardDetail}>👥 Max: {item.maxParticipants}</Text>
-              </View>
+                <Text style={styles.tapHint}>👥 View registrations →</Text>
+              </TouchableOpacity>
             )}
           />
         )}
@@ -81,21 +88,18 @@ export default function OrganizerDashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
+  createBtn: { backgroundColor: '#2E7D32', margin: 16, marginBottom: 0, padding: 14, borderRadius: 8, alignItems: 'center' },
+  createBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
   content: { flex: 1, padding: 16 },
   welcome: { fontSize: 16, color: '#555', marginBottom: 16 },
   statsRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  statCard: {
-    flex: 1, backgroundColor: '#fff', padding: 16, borderRadius: 10,
-    alignItems: 'center', elevation: 2,
-  },
+  statCard: { flex: 1, backgroundColor: '#fff', padding: 16, borderRadius: 10, alignItems: 'center', elevation: 2 },
   statNum: { fontSize: 28, fontWeight: 'bold', color: '#2E7D32' },
   statLabel: { fontSize: 12, color: '#888', marginTop: 4 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 12 },
+  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#333', marginBottom: 12 },
   empty: { textAlign: 'center', color: '#888', marginTop: 40, fontSize: 15 },
-  card: {
-    backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 12,
-    borderLeftWidth: 4, borderLeftColor: '#2E7D32', elevation: 1,
-  },
+  card: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#2E7D32', elevation: 1 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 6 },
   cardDetail: { fontSize: 13, color: '#666', marginTop: 2 },
+  tapHint: { fontSize: 12, color: '#2E7D32', marginTop: 8, fontWeight: '600' },
 });
