@@ -1,3 +1,4 @@
+import { registerForPushNotifications } from '../utils/registerPush';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     setToken(newToken);
     setUser(newUser);
+    registerForPushNotifications(); // PRJ-A65E-0014: push token register karo
     return newUser;
   };
 
