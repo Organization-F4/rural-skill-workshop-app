@@ -2,6 +2,7 @@
 // PRJ-A65E-0006: Location map link
 // PRJ-A65E-0007 + 0054: Registration button
 // PRJ-A65E-0055: Handle registration action
+import { showLocalNotification } from '../utils/registerPush';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Linking } from 'react-native';
 import axios from 'axios';
@@ -26,6 +27,13 @@ export default function WorkshopDetailsScreen({ route }) {
     try {
       await axios.post(`${API_URL}/workshops/${workshop._id}/register`);
       setRegistered(true);
+
+      // PRJ-A65E-0015 + 0016: Register hote hi notification dikhao
+      await showLocalNotification(
+        'Registration Confirmed! 🎉',
+        `Aap "${workshop.title}" ke liye register ho gaye hain.`
+      );
+
       Alert.alert('Success', 'Aap register ho gaye! 🎉');
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration nahi hua';

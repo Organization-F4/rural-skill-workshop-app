@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     enum: ['participant', 'organizer'], 
     default: 'participant' 
   },
-  location: { type: String, required: true }
+  location: { type: String, required: true },
+  pushToken: { type: String, default: null }
 }, { timestamps: true });
 
 // Hash password before saving
