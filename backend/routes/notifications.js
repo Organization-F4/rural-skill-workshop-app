@@ -48,4 +48,16 @@ router.patch('/:id/read', protect, async (req, res) => {
   }
 });
 
+// PRJ-A65E-0014: Save user's Expo push token
+// POST /api/notifications/token
+router.post('/token', protect, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.user._id, { pushToken: req.body.pushToken });
+    res.json({ success: true, message: 'Push token saved!' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

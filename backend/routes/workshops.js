@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/roleCheck');
+const sendNotification = require('../utils/sendNotification');
 const Workshop = require('../models/Workshop');
 
 // Public - view workshops WITH SEARCH
@@ -78,7 +79,15 @@ router.post('/:id/register', protect, async (req, res) => {
       workshop: req.params.id,
     });
 
+    await sendNotification(
+      req.user,
+      'Registration Confirmed! 🎉',
+      `Aap "${workshop.title}" workshop ke liye register ho gaye hain.`
+    );
+
     res.status(201).json({ success: true, message: 'Registered successfully!', data: registration });
+
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
