@@ -1,9 +1,11 @@
+// PRJ-A65E-0043: Notification Center UI
+// PRJ-A65E-0044: Fetch notifications
+// PRJ-A65E-0045: Mark as read
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import AppHeader from '../components/AppHeader';
 import { API_URL } from '../config';
-
-// ⚠️ Test ke liye — baad mein login se aayega
-const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNWJjNzkwOGQxNzhjNmNmMTM4NjlkMCIsImlhdCI6MTc4NDQ0OTExNiwiZXhwIjoxNzg1MDUzOTE2fQ.hwD-pyTNmR9kZZ7_Dpkv_t4bA5C_EmLZ_f0y20oLMXM';
 
 export default function NotificationScreen() {
   const [notifications, setNotifications] = useState([]);
@@ -15,15 +17,10 @@ export default function NotificationScreen() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`${API_URL}/notifications`, {
-        headers: { 'Authorization': `Bearer ${TOKEN}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setNotifications(data.data);
-      }
+      const res = await axios.get(`${API_URL}/notifications`);
+      setNotifications(res.data.data);
     } catch (error) {
-      console.log(error);
+      // ignore
     } finally {
       setLoading(false);
     }
@@ -31,60 +28,51 @@ export default function NotificationScreen() {
 
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${TOKEN}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        fetchNotifications(); // list refresh
-      }
+      await axios.patch(`${API_URL}/notifications/${id}/read`);
+      fetchNotifications();
     } catch (error) {
-      console.log(error);
+      // ignore
     }
   };
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2E7D32" />
-      </View>
-    );
-  }
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🔔 Notifications</Text>
-      <Text style={styles.count}>{unreadCount} unread</Text>
-
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.card, item.read ? styles.readCard : styles.unreadCard]}
-            onPress={() => !item.read && markAsRead(item._id)}
-          >
-            <View style={styles.row}>
-              <Text style={styles.notifTitle}>{item.title}</Text>
-              {!item.read && <View style={styles.dot} />}
-            </View>
-            <Text style={styles.message}>{item.message}</Text>
-            {!item.read && <Text style={styles.tapHint}>Tap to mark as read</Text>}
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={<Text style={styles.empty}>Koi notification nahi hai</Text>}
-      />
+      <AppHeader title="🔔 Notifications" />
+      {loading ? (
+        <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>
+      ) : (
+        <View style={styles.body}>
+          <Text style={styles.count}>{unreadCount} unread</Text>
+          <FlatList
+            data={notifications}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[styles.card, item.read ? styles.readCard : styles.unreadCard]}
+                onPress={() => !item.read && markAsRead(item._id)}
+              >
+                <View style={styles.row}>
+                  <Text style={styles.notifTitle}>{item.title}</Text>
+                  {!item.read && <View style={styles.dot} />}
+                </View>
+                <Text style={styles.message}>{item.message}</Text>
+                {!item.read && <Text style={styles.tapHint}>Tap to mark as read</Text>}
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={<Text style={styles.empty}>Koi notification nahi hai</Text>}
+          />
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32' },
+  body: { flex: 1, padding: 20 },
   count: { fontSize: 14, color: '#FF9800', marginBottom: 20, fontWeight: 'bold' },
   card: { padding: 15, borderRadius: 10, marginBottom: 12 },
   unreadCard: { backgroundColor: '#E8F5E9', borderLeftWidth: 4, borderLeftColor: '#2E7D32' },

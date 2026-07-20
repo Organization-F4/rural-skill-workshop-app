@@ -1,19 +1,15 @@
-// PRJ-A65E-0049: Implement logout logic in frontend
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 const AuthContext = createContext(null);
-
-const API_URL = 'http://10.0.2.2:5000/api'; // Android emulator -> localhost
-// For physical device: use your local IP e.g. 'http://192.168.x.x:5000/api'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load saved token on app start
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -33,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  // Register
   const register = async (name, email, password, role, location) => {
     const res = await axios.post(`${API_URL}/auth/register`, { name, email, password, role, location });
     const { token: newToken, user: newUser } = res.data;
@@ -44,7 +39,6 @@ export const AuthProvider = ({ children }) => {
     return newUser;
   };
 
-  // Login
   const login = async (email, password) => {
     const res = await axios.post(`${API_URL}/auth/login`, { email, password });
     const { token: newToken, user: newUser } = res.data;
@@ -55,7 +49,6 @@ export const AuthProvider = ({ children }) => {
     return newUser;
   };
 
-  // PRJ-A65E-0049: Logout — clear token and user
   const logout = async () => {
     await AsyncStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
