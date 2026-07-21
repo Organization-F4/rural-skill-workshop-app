@@ -1,113 +1,256 @@
 # 🌾 Rural Skill Workshop Locator & Registration Platform
 
-A mobile-first platform that connects rural youth to skill-building workshops in their vicinity. Residents can browse and register for workshops (tailoring, carpentry, digital literacy), while organizers can post workshops, manage registrations, and track attendance.
+A full-stack mobile application that helps rural communities discover, register for, and manage skill development workshops. Built with React Native (both Expo and CLI), Node.js backend, and REST APIs.
 
-## 📱 Features
+---
 
-- **Authentication & Roles** — Secure register/login with JWT. Two roles: participant and organizer.
-- **Workshop Discovery** — Browse workshops with search by title, skill type, or location.
-- **Workshop Registration** — Participants can register for workshops (with duplicate prevention).
-- **Attendance Tracking** — Organizers mark attendance (present/absent) with live updates.
-- **Organizer Dashboard** — View the list of registered users per workshop.
-- **Notifications** — In-app notification center with mark-as-read.
+## 📌 Project Overview
 
-## 🛠️ Tech Stack
+The Rural Skill Workshop platform connects workshop organizers with participants in rural areas. Organizers can create and manage workshops, while participants can browse, register, and receive notifications about upcoming skill development events.
 
-**Frontend:** React Native (Expo)
-**Backend:** Node.js, Express
-**Database:** MongoDB (Atlas)
-**Auth:** JWT, bcrypt
+### Key Features
 
-## 📂 Project Structure
+- 🔐 Authentication & Role Management (Organizer / Participant)
+- 🗺️ Workshop Discovery with Search & Filtering
+- 📋 Workshop Registration & Attendance Tracking
+- 🔔 Push Notifications for registered users
+- 📊 Organizer Dashboard with attendance summary
+- ✏️ Edit / Delete workshop management
+- 📧 Email & SMS notification services
 
+---
+
+## 🗂️ Folder Structure
+
+```
 rural-skill-workshop-app/
-├── backend/
-│   ├── config/        # Database connection
-│   ├── controllers/   # Business logic
-│   ├── middleware/    # Auth & role checks
-│   ├── models/        # User, Workshop, Registration, Notification
-│   ├── routes/        # API routes
-│   └── server.js      # Entry point
-└── frontend/
-├── screens/       # Login, Registered Users, Notifications
-├── config.js      # API URL
-└── App.js         # Navigation
+├── backend/              # Node.js + Express REST API
+├── frontend/             # Expo (React Native) Frontend
+├── RuralSkillApp/        # React Native CLI Frontend
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 🔧 Tech Stack
+
+### Backend
+| Technology | Purpose |
+|---|---|
+| Node.js | Runtime environment |
+| Express.js | REST API framework |
+| MongoDB | Database |
+| JWT | Authentication tokens |
+| Nodemailer | Email notifications |
+
+### Frontend (Expo)
+| Technology | Purpose |
+|---|---|
+| React Native (Expo) | Cross-platform mobile app |
+| Expo Router | Navigation |
+| AsyncStorage | Local data persistence |
+| Axios | API communication |
+
+### Frontend (React Native CLI)
+| Technology | Purpose |
+|---|---|
+| React Native CLI | Native mobile app |
+| React Navigation | Stack & tab navigation |
+| AsyncStorage | Local data persistence |
+| Axios | API communication |
+
+---
+
+## 📁 Detailed Folder Breakdown
+
+### `/backend`
+REST API server handling all business logic.
+
+```
+backend/
+├── controllers/      # Route logic (auth, workshop, users)
+├── models/           # MongoDB schemas
+├── routes/           # API endpoints
+├── middleware/        # JWT auth middleware
+├── utils/            # Email & SMS helpers
+└── server.js         # Entry point
+```
+
+**API Endpoints:**
+- `POST /api/auth/login` — User login
+- `POST /api/auth/register` — User registration
+- `GET /api/workshops` — Get all workshops
+- `POST /api/workshops` — Create workshop (Organizer only)
+- `PUT /api/workshops/:id` — Edit workshop
+- `DELETE /api/workshops/:id` — Delete workshop
+- `POST /api/workshops/:id/register` — Register for workshop
+- `GET /api/workshops/:id/registered-users` — Get registered users
+
+---
+
+### `/frontend` (Expo)
+Original frontend built with Expo framework.
+
+```
+frontend/
+├── screens/
+│   ├── LoginScreen.js
+│   ├── RegisterScreen.js
+│   ├── WorkshopListScreen.js
+│   ├── WorkshopDetailsScreen.js
+│   ├── CreateWorkshopScreen.js
+│   ├── EditWorkshopScreen.js
+│   ├── OrganizerDashboard.js
+│   ├── RegisteredUsersScreen.js
+│   └── NotificationScreen.js
+├── context/
+│   └── AuthContext.js        # Auth state management
+├── navigation/
+│   └── AppNavigator.js       # App routing
+└── config.js                 # API URL config
+```
+
+---
+
+### `/RuralSkillApp` (React Native CLI)
+Rebuilt frontend using React Native CLI for better native performance.
+
+```
+RuralSkillApp/
+├── android/              # Android native code
+├── ios/                  # iOS native code
+├── screens/
+│   ├── LoginScreen.js
+│   ├── RegisterScreen.js
+│   ├── WorkshopListScreen.js
+│   ├── WorkshopDetailsScreen.js
+│   ├── CreateWorkshopScreen.js
+│   ├── EditWorkshopScreen.js
+│   ├── OrganizerDashboard.js
+│   ├── RegisteredUsersScreen.js
+│   └── NotificationScreen.js
+├── components/
+│   └── AppHeader.js
+├── context/
+│   └── AuthContext.js
+├── navigation/
+│   └── AppNavigator.js
+├── config.js
+├── App.js
+└── package.json
+```
+
+---
 
 ## 🚀 Getting Started
 
-### Backend Setup
+### Prerequisites
+- Node.js >= 18
+- npm or yarn
+- MongoDB (local or Atlas)
+- Android Studio / Xcode (for React Native CLI)
+
+---
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Organization-F4/rural-skill-workshop-app.git
+cd rural-skill-workshop-app
+```
+
+---
+
+### 2. Backend Setup
 
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend` folder:
-
-
+Create `.env` file:
+```env
+PORT=5000
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-PORT=5001
-
-Start the server:
-
-```bash
-node server.js
+JWT_SECRET=your_jwt_secret
 ```
 
-You should see: `Server running on port 5001` and `MongoDB Connected`.
+Start the server:
+```bash
+npm start
+```
 
-### Frontend Setup
+---
+
+### 3. Frontend Setup (Expo)
 
 ```bash
 cd frontend
 npm install
-```
-
-In `frontend/config.js`, set your computer's local IP:
-
-```javascript
-export const API_URL = 'http://YOUR_IP:5001/api';
-```
-
-Start the app:
-
-```bash
 npx expo start
 ```
 
-Scan the QR code using the **Expo Go** app on your phone (phone and laptop must be on the same WiFi).
+---
 
-## 🔌 API Endpoints
+### 4. Frontend Setup (React Native CLI)
 
-### Auth
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Login and receive a token
-- `GET /api/auth/me` — Get current user (protected)
+```bash
+cd RuralSkillApp
+npm install
+```
 
-### Workshops
-- `GET /api/workshops` — List workshops (supports `?search=`)
-- `POST /api/workshops` — Create a workshop (organizer only)
-- `GET /api/workshops/my` — Organizer's own workshops
-- `POST /api/workshops/:id/register` — Register for a workshop
+Update `config.js` with your backend URL:
+```js
+export const API_URL = 'http://YOUR_IP:5000/api';
+```
 
-### Registrations & Attendance
-- `GET /api/workshops/:id/registrations` — View registered users
-- `PATCH /api/workshops/registrations/:regId/attendance` — Mark attendance
+Run on Android:
+```bash
+npx react-native run-android
+```
 
-### Notifications
-- `GET /api/notifications` — Get notifications
-- `POST /api/notifications` — Create a notification
-- `PATCH /api/notifications/:id/read` — Mark as read
+Run on iOS:
+```bash
+cd ios && pod install && cd ..
+npx react-native run-ios
+```
 
-## 👥 Team
+---
 
-- Kumari
-- Shristy
-- Nishant
-- Akanksha
+## 👥 Team & Branches
+
+| Branch | Developer |
+|---|---|
+| `Nishant-workshop` | Nishant Singh |
+| `Akanksha-workshop` | Akanksha |
+| `Anjali-Workshop` | Anjali |
+| `shristy-workshop` | Shristy |
+| `dev` | Integration branch |
+| `main` | Production branch |
+
+---
+
+## 🔄 Git Workflow
+
+```
+feature branch (Nishant-workshop)
+        ↓
+      dev branch
+        ↓
+     main branch
+```
+
+1. Work on your own branch
+2. Merge to `dev` for integration testing
+3. `main` is the final production branch
+
+---
 
 ## 📄 License
 
-This project was built as part of the STCIP React Native Mobile App Development program.
+This project is developed as part of a workshop training program.
 
+---
+
+> Built with ❤️ by Team F4
