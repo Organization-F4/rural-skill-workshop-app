@@ -12,6 +12,7 @@ import OrganizerDashboard from '../screens/OrganizerDashboard';
 import WorkshopListScreen from '../screens/WorkshopListScreen';
 import WorkshopDetailsScreen from '../screens/WorkshopDetailsScreen';
 import CreateWorkshopScreen from '../screens/CreateWorkshopScreen';
+import EditWorkshopScreen from '../screens/EditWorkshopScreen';
 import RegisteredUsersScreen from '../screens/RegisteredUsersScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 
@@ -36,6 +37,7 @@ const OrganizerStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Dashboard" component={OrganizerDashboard} />
     <Stack.Screen name="CreateWorkshop" component={CreateWorkshopScreen} />
+    <Stack.Screen name="EditWorkshop" component={EditWorkshopScreen} />
     <Stack.Screen name="RegisteredUsers" component={RegisteredUsersScreen} />
     <Stack.Screen name="Notifications" component={NotificationScreen} />
   </Stack.Navigator>
@@ -43,7 +45,6 @@ const OrganizerStack = () => (
 
 export default function AppNavigator() {
   const { user, loading } = useAuth();
-
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -51,16 +52,9 @@ export default function AppNavigator() {
       </View>
     );
   }
-
   return (
     <NavigationContainer>
-      {!user ? (
-        <AuthStack />
-      ) : user.role === 'organizer' ? (
-        <OrganizerStack />
-      ) : (
-        <ParticipantStack />
-      )}
+      {!user ? <AuthStack /> : user.role === 'organizer' ? <OrganizerStack /> : <ParticipantStack />}
     </NavigationContainer>
   );
 }
